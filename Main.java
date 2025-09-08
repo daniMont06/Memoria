@@ -4,7 +4,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-
+        
         System.out.print("Nombre J1: ");
         String n1 = sc.nextLine().trim();
         System.out.print("Nombre J2: ");
@@ -14,7 +14,7 @@ public class Main {
 
         Juego juego = new Juego(n1, n2);
 
-
+        
         Integer filas = null, columnas = null;
         for (int intento = 0; intento < 3 && (filas == null || columnas == null); intento++) {
             try {
@@ -22,7 +22,7 @@ public class Main {
                 filas = Integer.valueOf(Integer.parseInt(sc.nextLine().trim()));
                 System.out.print("Columnas (2..10): ");
                 columnas = Integer.valueOf(Integer.parseInt(sc.nextLine().trim()));
-                juego.nuevaPartida(filas, columnas);
+                juego.nuevaPartida(filas, columnas); // valida dentro
             } catch (Exception e) {
                 System.out.println(e.getMessage() != null ? e.getMessage() : "Entrada inválida.");
                 filas = null; columnas = null;
@@ -34,18 +34,17 @@ public class Main {
             return;
         }
 
-
+        
         int total = filas * columnas;
         int maxRondas = (total / 2) * 2;
 
         for (int ronda = 0; ronda < maxRondas && !juego.terminado(); ronda++) {
-            // Mostrar tablero + marcador
+            // Mostrar tablero y marcador
             imprimirTablero(juego.getTablero(), filas, columnas);
             System.out.println(marcador(juego));
             System.out.println("Turno de: " + juego.getActual().getNombre());
 
-
-
+            
             int[] p1 = pedirCoordenada(sc, "Casilla 1 (fila columna): ", 3);
             int[] p2 = pedirCoordenada(sc, "Casilla 2 (fila columna): ", 3);
             if (p1 == null || p2 == null) {
@@ -53,10 +52,15 @@ public class Main {
                 break;
             }
 
+            
+            imprimirTableroPreview(juego.getTablero(), filas, columnas, p1[0], p1[1], p2[0], p2[1]);
+
+            
             String mensaje = juego.jugarTurno(p1[0], p1[1], p2[0], p2[1]);
             System.out.println(mensaje);
         }
 
+        
         imprimirTablero(juego.getTablero(), filas, columnas);
         System.out.println("¡Juego terminado!");
         System.out.println(marcador(juego));
@@ -64,9 +68,9 @@ public class Main {
         sc.close();
     }
 
+    
 
-
-    // Pide una coordenada "fila columna" 
+    // Pide "fila columna" 
     private static int[] pedirCoordenada(Scanner sc, String prompt, int reintentos) {
         int[] coord = null;
         for (int i = 0; i < reintentos && coord == null; i++) {
@@ -88,6 +92,7 @@ public class Main {
         return coord; // null si fallaron los intentos
     }
 
+    // Tablero normal: solo parejas emparejadas se ven
     private static void imprimirTablero(Tablero t, int filas, int columnas) {
         System.out.println();
         System.out.print("    ");
@@ -100,6 +105,28 @@ public class Main {
             System.out.printf("%-3d|", f);
             for (int c = 0; c < columnas; c++) {
                 String celda = t.estaEmparejada(f, c) ? t.verSimbolo(f, c) : "■";
+                System.out.printf("%-3s", celda);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    // Tablero "preview": muestra dos coordenadas destapadas temporalmente
+    private static void imprimirTableroPreview(Tablero t, int filas, int columnas,
+                                            int f1, int c1, int f2, int c2) {
+        System.out.println();
+        System.out.print("    ");
+        for (int c = 0; c < columnas; c++) System.out.printf("%-3d", c);
+        System.out.println();
+        System.out.print("    ");
+        for (int c = 0; c < columnas; c++) System.out.print("---");
+        System.out.println();
+        for (int f = 0; f < filas; f++) {
+            System.out.printf("%-3d|", f);
+            for (int c = 0; c < columnas; c++) {
+                boolean esPick = (f == f1 && c == c1) || (f == f2 && c == c2);
+                String celda = (t.estaEmparejada(f, c) || esPick) ? t.verSimbolo(f, c) : "■";
                 System.out.printf("%-3s", celda);
             }
             System.out.println();
@@ -122,3 +149,4 @@ public class Main {
         return "Empate.";
     }
 }
+
